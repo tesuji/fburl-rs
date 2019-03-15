@@ -8,4 +8,4 @@ install:
   - sudo apt-get install -q libssl-dev
 
 script:
-  - cargo build
+  - cargo check
