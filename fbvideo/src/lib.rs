@@ -140,7 +140,7 @@ impl<'fb> FbVideo<'fb> {
     }
 
     fn grep_video_title(content: &str) -> &str {
-        const TITLE: &str = r#"title id="pageTitle">(.+?)<\/title>"#;
+        const TITLE: &str = r#"title id="pageTitle">([^<]+)</title>"#;
         lazy_static! {
             static ref TITLE_REGEX: Regex = Regex::new(TITLE).unwrap();
         }
