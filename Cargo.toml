@@ -27,4 +27,3 @@ fbvideo = { version = "0.2", path = "fbvideo" }
 [dependencies.clap]
 version = "2.32"
 default-features = false
-features = ["suggestions"]
