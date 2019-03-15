@@ -5,8 +5,8 @@ fn main() {
     let mut lists = run();
     for fb in lists.iter_mut() {
         match fb.get_video_url() {
-            Ok(url) => println!("{:?}", url),
-            Err(e) => eprintln!("{:?}", e),
+            Ok(url) => println!("{}", url),
+            Err(e) => eprintln!("{:#?}", e),
         }
     }
 }
@@ -18,19 +18,15 @@ fn run() -> Vec<FbVideo> {
         .author("Lzu Tao")
         .arg(
             Arg::with_name("hd")
-                .help("Get HD quality video URL") // Displayed when showing help info
-                .long("hd") // Trigger this arg with "--hd"
-                .conflicts_with("sd"), // Opposite of requires(), says "if the
-                                       // user uses -a, they CANNOT use 'output'"
-                                       // also has a conflicts_with_all(Vec<&str>))
+                .help("Get HD quality video URL")
+                .long("hd")
+                .conflicts_with("sd"),
         )
         .arg(
             Arg::with_name("sd")
-                .help("Get SD quality video URL") // Displayed when showing help info
-                .long("sd") // Trigger this arg with "--sd"
-                .conflicts_with("hd"), // Opposite of requires(), says "if the
-                                       // user uses -a, they CANNOT use 'output'"
-                                       // also has a conflicts_with_all(Vec<&str>))
+                .help("Get SD quality video URL")
+                .long("sd")
+                .conflicts_with("hd"),
         )
         .arg(
             Arg::with_name("URL")
