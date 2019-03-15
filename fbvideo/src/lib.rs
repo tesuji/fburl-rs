@@ -13,8 +13,11 @@
 //! use fbvideo::{FbVideo, Quality};
 //!
 //! fn main() {
-//!     let mut fb = FbVideo::new("https://www.facebook.com/817131355292571/videos/2101344733268123/");
-//!     match fb.get_video_url(Quality::Hd) {
+//!     let mut fb = FbVideo::new(
+//!         "https://www.facebook.com/817131355292571/videos/2101344733268123/",
+//!         Quality::Hd,
+//!     );
+//!     match fb.get_video_url() {
 //!         Ok(url) => println!("{:?}", url),
 //!         Err(e) => panic!("{:?}", e),
 //!     }
@@ -31,12 +34,14 @@ use reqwest;
 pub struct FbVideo {
     /// Facebook URL point to a video.
     url: String,
+    /// The quality of downloaded video.
+    quality: Quality,
     /// HTML content of that `url`.
     content: String,
 }
 
 /// The quality of downloaded video.
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum Quality {
     /// Standard Definition quality.
     Sd,
@@ -63,17 +68,18 @@ pub enum Error {
 
 impl FbVideo {
     /// Generate new instance of FbVideo.
-    pub fn new(url: &str) -> Self {
+    pub fn new(url: &str, quality: Quality) -> Self {
         FbVideo {
             url: String::from(url),
+            quality,
             content: String::new(),
         }
     }
 
     /// Get real video URL (often `mp4` format) from Facebook URL.
-    pub fn get_video_url(&mut self, quality: Quality) -> Result<&str, Error> {
+    pub fn get_video_url(&mut self) -> Result<&str, Error> {
         self.crawl_page_source()?;
-        Ok(FbVideo::grep_video_url(&self.content, quality))
+        Ok(FbVideo::grep_video_url(&self.content, self.quality))
     }
 
     /// Get video title from Facebook URL.
@@ -83,8 +89,8 @@ impl FbVideo {
     }
 
     fn grep_video_url(content: &str, quality: Quality) -> &str {
-        const SD: &str = r#"sd_src_no_ratelimit:\s*"([^"]+)""#;
-        const HD: &str = r#"hd_src_no_ratelimit:\s*"([^"]+)""#;
+        const SD: &str = r#"sd_src(_no_ratelimit)?:\s*"([^"]+)""#;
+        const HD: &str = r#"hd_src(_no_ratelimit)?:\s*"([^"]+)""#;
         lazy_static! {
             static ref URL_SD_REGEX: Regex = Regex::new(SD).unwrap();
             static ref URL_HD_REGEX: Regex = Regex::new(HD).unwrap();
@@ -96,7 +102,7 @@ impl FbVideo {
         }
         .captures(content)
         .unwrap()
-        .get(1)
+        .get(2)
         .unwrap()
         .as_str()
     }
