@@ -1,6 +1,6 @@
 [package]
 name = "fbvideo"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["Lzu Tao <taolzu@gmail.com>"]
 edition = "2018"
 description = "Library to get video URLs from Facebook"

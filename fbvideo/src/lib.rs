@@ -31,13 +31,13 @@ use reqwest;
 /// This struct contains all methods necessary to get video URL or video title
 /// from Facebook.
 #[derive(Debug)]
-pub struct FbVideo {
+pub struct FbVideo<'fb> {
     /// Facebook URL point to a video.
-    url: String,
+    url: &'fb str,
     /// The quality of downloaded video.
     quality: Quality,
     /// HTML content of that `url`.
-    content: String,
+    content: Box<str>,
 }
 
 /// The quality of downloaded video.
@@ -66,13 +66,45 @@ pub enum Error {
     UnknownError,
 }
 
-impl FbVideo {
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let discription = match self {
+            Error::HttpError => "Error is related to HTTP",
+            Error::RedirectError => "Error is from a `RedirectPolicy`",
+            Error::ClientError => "Error is from a request returning a 4xx error",
+            Error::ServerError => "Error is from a request returning a 5xx error",
+            Error::TimeoutError => "Error is related to a timeout",
+            Error::UnknownError => "Error is unknown",
+        };
+        write!(f, "{}", discription)
+    }
+}
+
+impl From<reqwest::Error> for Error {
+    fn from(e: reqwest::Error) -> Self {
+        if e.is_http() {
+            Error::HttpError
+        } else if e.is_timeout() {
+            Error::TimeoutError
+        } else if e.is_redirect() {
+            Error::RedirectError
+        } else if e.is_client_error() {
+            Error::ClientError
+        } else if e.is_server_error() {
+            Error::ServerError
+        } else {
+            Error::UnknownError
+        }
+    }
+}
+
+impl<'fb> FbVideo<'fb> {
     /// Generate new instance of FbVideo.
-    pub fn new(url: &str, quality: Quality) -> Self {
+    pub fn new(url: &'fb str, quality: Quality) -> Self {
         FbVideo {
-            url: String::from(url),
+            url,
             quality,
-            content: String::new(),
+            content: String::new().into_boxed_str(),
         }
     }
 
@@ -124,8 +156,8 @@ impl FbVideo {
     fn crawl_page_source(&mut self) -> Result<(), Error> {
         if self.content.is_empty() {
             self.content = match FbVideo::make_request(&self.url) {
-                Ok(body) => body,
-                Err(e) => return Err(FbVideo::handler_error(e)),
+                Ok(body) => body.into_boxed_str(),
+                Err(e) => return Err(e.into()),
             };
         }
         Ok(())
@@ -149,21 +181,5 @@ impl FbVideo {
             .get(url)
             .send()?
             .text()
-    }
-
-    fn handler_error(e: reqwest::Error) -> Error {
-        if e.is_http() {
-            Error::HttpError
-        } else if e.is_timeout() {
-            Error::TimeoutError
-        } else if e.is_redirect() {
-            Error::RedirectError
-        } else if e.is_client_error() {
-            Error::ClientError
-        } else if e.is_server_error() {
-            Error::ServerError
-        } else {
-            Error::UnknownError
-        }
     }
 }
