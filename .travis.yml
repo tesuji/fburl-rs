@@ -4,6 +4,8 @@ rust: stable
 git:
   depth: 1
 
+install:
+  - sudo apt-get install -q libssl-dev
+
 script:
-  - sudo apt-get install -q libss-dev
   - cargo build
