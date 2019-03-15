@@ -1,0 +1,9 @@
+language: rust
+rust: stable
+
+git:
+  depth: 1
+
+script:
+  - sudo apt-get install -q libss-dev
+  - cargo build
