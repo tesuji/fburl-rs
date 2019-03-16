@@ -111,7 +111,7 @@ impl<'fb> FbVideo<'fb> {
     /// Get real video URL (often `mp4` format) from Facebook URL.
     pub fn get_video_url(&mut self) -> Result<&str, Error> {
         self.crawl_page_source()?;
-        Ok(FbVideo::grep_video_url(&self.content, self.quality))
+        FbVideo::grep_video_url(&self.content, self.quality).ok_or(Error::UnknownError)
     }
 
     /// Get video title from Facebook URL.
@@ -120,7 +120,7 @@ impl<'fb> FbVideo<'fb> {
         Ok(FbVideo::grep_video_title(&self.content))
     }
 
-    fn grep_video_url(content: &str, quality: Quality) -> &str {
+    fn grep_video_url(content: &str, quality: Quality) -> Option<&str> {
         const SD: &str = r#"sd_src(_no_ratelimit)?:\s*"([^"]+)""#;
         const HD: &str = r#"hd_src(_no_ratelimit)?:\s*"([^"]+)""#;
         lazy_static! {
@@ -128,15 +128,16 @@ impl<'fb> FbVideo<'fb> {
             static ref URL_HD_REGEX: Regex = Regex::new(HD).unwrap();
         };
 
-        match quality {
+        if let Some(caps) = match quality {
             Quality::Sd => &*URL_SD_REGEX,
             Quality::Hd => &*URL_HD_REGEX,
         }
         .captures(content)
-        .unwrap()
-        .get(2)
-        .unwrap()
-        .as_str()
+        {
+            Some(caps.get(2).unwrap().as_str())
+        } else {
+            None
+        }
     }
 
     fn grep_video_title(content: &str) -> &str {
