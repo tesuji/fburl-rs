@@ -6,7 +6,7 @@ fn main() {
 }
 
 fn arg_parse<'a>() -> ArgMatches<'a> {
-    App::new("fbvideo")
+    App::new("fburl")
         .version("0.2.0")
         .about("Get video URLs from Facebook URL.")
         .author("Lzu Tao")
