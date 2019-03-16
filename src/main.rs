@@ -46,7 +46,7 @@ fn run() {
             let mut fb = FbVideo::new(url, quality);
             match fb.get_video_url() {
                 Ok(url) => println!("{}", url),
-                Err(e) => eprintln!("{:#?}", e),
+                Err(e) => eprintln!("Error: {:#?}", e),
             }
         }
     }
