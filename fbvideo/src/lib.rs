@@ -62,6 +62,8 @@ pub enum Error {
     ServerError,
     /// Error is related to a timeout.
     TimeoutError,
+    /// Target site have no video link.
+    InvalidUrl,
     /// Error is unknown.
     UnknownError,
 }
@@ -74,6 +76,7 @@ impl std::fmt::Display for Error {
             Error::ClientError => "Error is from a request returning a 4xx error",
             Error::ServerError => "Error is from a request returning a 5xx error",
             Error::TimeoutError => "Error is related to a timeout",
+            Error::InvalidUrl => "Target site have no video link",
             Error::UnknownError => "Error is unknown",
         };
         write!(f, "{}", discription)
@@ -92,6 +95,8 @@ impl From<reqwest::Error> for Error {
             Error::ClientError
         } else if e.is_server_error() {
             Error::ServerError
+        } else if e.url().is_none() {
+            Error::InvalidUrl
         } else {
             Error::UnknownError
         }
@@ -111,7 +116,7 @@ impl<'fb> FbVideo<'fb> {
     /// Get real video URL (often `mp4` format) from Facebook URL.
     pub fn get_video_url(&mut self) -> Result<&str, Error> {
         self.crawl_page_source()?;
-        FbVideo::grep_video_url(&self.content, self.quality).ok_or(Error::UnknownError)
+        FbVideo::grep_video_url(&self.content, self.quality).ok_or(Error::InvalidUrl)
     }
 
     /// Get video title from Facebook URL.
