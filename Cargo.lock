@@ -169,12 +169,12 @@ name = "fburl"
 version = "0.2.0"
 dependencies = [
  "clap 2.32.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "fbvideo 0.3.1",
+ "fbvideo 0.3.2",
 ]
 
 [[package]]
 name = "fbvideo"
-version = "0.3.1"
+version = "0.3.2"
 dependencies = [
  "lazy_static 1.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "regex 1.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
