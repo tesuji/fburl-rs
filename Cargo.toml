@@ -6,7 +6,7 @@ edition = "2018"
 description = "Get video URLs from Facebook"
 license = "MIT"
 keywords = ["facebook", "video", "request", "client"]
-repository = "https://github.com/lzutao/fbvideo-rs"
+repository = "https://github.com/lzutao/fburl-rs"
 categories = ["network-programming", "parsing", "web-programming"]
 
 [badges]
