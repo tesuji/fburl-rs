@@ -122,7 +122,7 @@ impl<'fb> FbVideo<'fb> {
     /// Get video title from Facebook URL.
     pub fn get_video_title(&mut self) -> Result<&str, Error> {
         self.crawl_page_source()?;
-        Ok(FbVideo::grep_video_title(&self.content))
+        FbVideo::grep_video_title(&self.content).ok_or(Error::InvalidUrl)
     }
 
     fn grep_video_url(content: &str, quality: Quality) -> Option<&str> {
@@ -145,26 +145,24 @@ impl<'fb> FbVideo<'fb> {
         }
     }
 
-    fn grep_video_title(content: &str) -> &str {
+    fn grep_video_title(content: &str) -> Option<&str> {
         const TITLE: &str = r#"title id="pageTitle">([^<]+)</title>"#;
         lazy_static! {
             static ref TITLE_REGEX: Regex = Regex::new(TITLE).unwrap();
         }
 
-        TITLE_REGEX
-            .captures(content)
-            .unwrap()
-            .get(1)
-            .unwrap()
-            .as_str()
+        if let Some(caps) = TITLE_REGEX.captures(content) {
+            Some(caps.get(1).unwrap().as_str())
+        } else {
+            None
+        }
     }
 
     fn crawl_page_source(&mut self) -> Result<(), Error> {
         if self.content.is_empty() {
-            self.content = match FbVideo::make_request(&self.url) {
-                Ok(body) => body.into_boxed_str(),
-                Err(e) => return Err(e.into()),
-            };
+            self.content = FbVideo::make_request(&self.url)
+                .map_err(Error::from)?
+                .into_boxed_str();
         }
         Ok(())
     }
