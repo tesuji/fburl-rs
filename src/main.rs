@@ -43,10 +43,9 @@ fn run() {
     // We can also get the values for those arguments
     if let Some(urls) = matches.values_of("URL") {
         for url in urls {
-            let mut fb = FbVideo::new(url, quality);
-            match fb.get_video_url() {
+            match FbVideo::new(url, quality).get_video_url() {
                 Ok(url) => println!("{}", url),
-                Err(e) => eprintln!("Error: {:#?}", e),
+                Err(e) => eprintln!("Error: {}", e),
             }
         }
     }
