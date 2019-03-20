@@ -62,7 +62,7 @@ pub enum Error {
     ServerError,
     /// Error is related to a timeout.
     TimeoutError,
-    /// Target site have no video link.
+    /// Target site has no video link.
     InvalidUrl,
     /// Error is unknown.
     UnknownError,
@@ -76,7 +76,7 @@ impl std::fmt::Display for Error {
             Error::ClientError => "Error is from a request returning a 4xx error",
             Error::ServerError => "Error is from a request returning a 5xx error",
             Error::TimeoutError => "Error is related to a timeout",
-            Error::InvalidUrl => "Target site have no video link",
+            Error::InvalidUrl => "Target site has no video link",
             Error::UnknownError => "Error is unknown",
         };
         write!(f, "{}", discription)
