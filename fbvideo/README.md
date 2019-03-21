@@ -3,6 +3,7 @@
 Library to get video URLs from Facebook.
 
 [![Documentation](https://docs.rs/fbvideo/badge.svg)](https://docs.rs/fbvideo)
+[![Crates.io](https://img.shields.io/crates/v/fbvideo.svg)](https://crates.io/crates/fbvideo)
 
 ### Examples
 
