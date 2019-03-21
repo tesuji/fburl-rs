@@ -69,8 +69,8 @@ pub enum Error {
 }
 
 impl std::fmt::Display for Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        let discription = match self {
+    fn fmt(&self, fmter: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let description = match self {
             Error::HttpError => "Error is related to HTTP",
             Error::RedirectError => "Error is from a `RedirectPolicy`",
             Error::ClientError => "Error is from a request returning a 4xx error",
@@ -79,7 +79,7 @@ impl std::fmt::Display for Error {
             Error::InvalidUrl => "Target site has no video link",
             Error::UnknownError => "Error is unknown",
         };
-        write!(f, "{}", discription)
+        fmter.write_str(description)
     }
 }
 
