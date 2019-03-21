@@ -103,6 +103,16 @@ impl From<reqwest::Error> for Error {
     }
 }
 
+const SD_RX: &str = r#"sd_src(_no_ratelimit)?:\s*"([^"]+)""#;
+const HD_RX: &str = r#"hd_src(_no_ratelimit)?:\s*"([^"]+)""#;
+const TITLE_RX: &str = r#"title id="pageTitle">([^<]+)</title>"#;
+
+lazy_static! {
+    static ref URL_SD_RE: Regex = Regex::new(SD_RX).unwrap();
+    static ref URL_HD_RE: Regex = Regex::new(HD_RX).unwrap();
+    static ref TITLE_RE: Regex = Regex::new(TITLE_RX).unwrap();
+}
+
 impl<'fb> FbVideo<'fb> {
     /// Generate new instance of FbVideo.
     pub fn new(url: &'fb str, quality: Quality) -> Self {
@@ -126,16 +136,9 @@ impl<'fb> FbVideo<'fb> {
     }
 
     fn grep_video_url(content: &str, quality: Quality) -> Option<&str> {
-        const SD: &str = r#"sd_src(_no_ratelimit)?:\s*"([^"]+)""#;
-        const HD: &str = r#"hd_src(_no_ratelimit)?:\s*"([^"]+)""#;
-        lazy_static! {
-            static ref URL_SD_REGEX: Regex = Regex::new(SD).unwrap();
-            static ref URL_HD_REGEX: Regex = Regex::new(HD).unwrap();
-        };
-
         if let Some(caps) = match quality {
-            Quality::Sd => &*URL_SD_REGEX,
-            Quality::Hd => &*URL_HD_REGEX,
+            Quality::Sd => &*URL_SD_RE,
+            Quality::Hd => &*URL_HD_RE,
         }
         .captures(content)
         {
@@ -146,12 +149,7 @@ impl<'fb> FbVideo<'fb> {
     }
 
     fn grep_video_title(content: &str) -> Option<&str> {
-        const TITLE: &str = r#"title id="pageTitle">([^<]+)</title>"#;
-        lazy_static! {
-            static ref TITLE_REGEX: Regex = Regex::new(TITLE).unwrap();
-        }
-
-        if let Some(caps) = TITLE_REGEX.captures(content) {
+        if let Some(caps) = TITLE_RE.captures(content) {
             Some(caps.get(1).unwrap().as_str())
         } else {
             None
