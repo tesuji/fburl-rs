@@ -1,9 +1,20 @@
 dist: xenial
 language: rust
 rust: stable
+cache:
+  directories:
+    - "$HOME/.cargo"
+# But don't cache the cargo registry
+before_cache:
+  - rm -rf "$HOME/.cargo/registry"
 
 git:
   depth: 1
+  quiet: true
+
+before_install:
+  - rustup component add rustfmt
+  - cargo fmt --all -- --check
 
 install:
   - sudo apt-get install -q libssl-dev
