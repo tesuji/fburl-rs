@@ -2,12 +2,12 @@
 name = "fburl"
 version = "0.2.0"
 authors = ["Lzu Tao <taolzu@gmail.com>"]
-edition = "2018"
-description = "Get video URLs from Facebook"
-license = "MIT"
-keywords = ["facebook", "video", "request", "client"]
-repository = "https://github.com/lzutao/fburl-rs"
 categories = ["network-programming", "parsing", "web-programming"]
+edition = "2018"
+keywords = ["facebook", "video", "request", "client"]
+license = "MIT"
+repository = "https://github.com/lzutao/fburl-rs"
+description = "Get video URLs from Facebook"
 
 [badges]
 travis-ci = { repository = "lzutao/fbvideo-rs", branch = "master" }
