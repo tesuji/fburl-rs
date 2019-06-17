@@ -24,9 +24,10 @@
 //! }
 //! ```
 
+#![deny(rust_2018_idioms)]
+
 use lazy_static::lazy_static;
 use regex::Regex;
-use reqwest;
 
 /// This struct contains all methods necessary to get video URL or video title
 /// from Facebook.
@@ -69,7 +70,7 @@ pub enum Error {
 }
 
 impl std::fmt::Display for Error {
-    fn fmt(&self, fmter: &mut std::fmt::Formatter) -> std::fmt::Result {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let description = match self {
             Error::HttpError => "Error is related to HTTP",
             Error::RedirectError => "Error is from a `RedirectPolicy`",
@@ -79,7 +80,7 @@ impl std::fmt::Display for Error {
             Error::InvalidUrl => "Target site has no video link",
             Error::UnknownError => "Error is unknown",
         };
-        fmter.write_str(description)
+        f.write_str(description)
     }
 }
 

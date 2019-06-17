@@ -1,3 +1,5 @@
+#![deny(rust_2018_idioms)]
+
 use clap::{App, Arg, ArgMatches};
 use fbvideo::{FbVideo, Quality};
 
