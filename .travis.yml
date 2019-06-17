@@ -20,4 +20,4 @@ install:
   - sudo apt-get install -q libssl-dev
 
 script:
-  - cargo check --verbose
+  - cargo check --verbose --all-features --all-targets
