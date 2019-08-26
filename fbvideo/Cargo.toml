@@ -15,4 +15,4 @@ travis-ci = { repository = "lzutao/fbvideo-rs", branch = "master" }
 [dependencies]
 reqwest = "0.9"
 regex = "1"
-lazy_static = "1.3"
+lazy_static = "1.4"
