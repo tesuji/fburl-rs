@@ -1,23 +1,25 @@
 dist: xenial
-language: rust
-rust: stable
+language: minimal
+
 cache:
   directories:
     - "$HOME/.cargo"
-# But don't cache the cargo registry
+    - target
 before_cache:
-  - rm -rf "$HOME/.cargo/registry"
+  - curl -sSL "https://github.com/lzutao/cargo-cache/releases/download/0.3.3/cargo-cache-0.3.3-${TRAVIS_OS_NAME}.tar.gz" | tar -xzf - -C ~/.cargo/bin
+  - cargo cache --autoclean
 
 git:
   depth: 1
   quiet: true
 
 before_install:
-  - rustup component add rustfmt
+  - curl -sSL https://sh.rustup.rs | sh -s -- -y --default-toolchain=stable --profile=minimal -c rustfmt
+  - export PATH="$HOME/.cargo/bin:$PATH"
   - cargo fmt --all -- --check
 
 install:
   - sudo apt-get install -q libssl-dev
 
 script:
-  - cargo check --verbose --all-features --all-targets
+  - cargo check --verbose --all --all-targets
