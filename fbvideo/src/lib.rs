@@ -26,7 +26,7 @@
 
 #![deny(rust_2018_idioms)]
 
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 use regex::Regex;
 
 /// This struct contains all methods necessary to get video URL or video title
@@ -108,11 +108,9 @@ const SD_RX: &str = r#"sd_src(_no_ratelimit)?:\s*"([^"]+)""#;
 const HD_RX: &str = r#"hd_src(_no_ratelimit)?:\s*"([^"]+)""#;
 const TITLE_RX: &str = r#"title id="pageTitle">([^<]+)</title>"#;
 
-lazy_static! {
-    static ref URL_SD_RE: Regex = Regex::new(SD_RX).unwrap();
-    static ref URL_HD_RE: Regex = Regex::new(HD_RX).unwrap();
-    static ref TITLE_RE: Regex = Regex::new(TITLE_RX).unwrap();
-}
+static URL_SD_RE: Lazy<Regex> = Lazy::new(|| Regex::new(SD_RX).unwrap());
+static URL_HD_RE: Lazy<Regex> = Lazy::new(|| Regex::new(HD_RX).unwrap());
+static TITLE_RE: Lazy<Regex> = Lazy::new(|| Regex::new(TITLE_RX).unwrap());
 
 impl<'fb> FbVideo<'fb> {
     /// Generate new instance of FbVideo.

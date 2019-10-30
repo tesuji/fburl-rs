@@ -13,6 +13,6 @@ description = "Library to get video URLs from Facebook"
 travis-ci = { repository = "lzutao/fbvideo-rs", branch = "master" }
 
 [dependencies]
-reqwest = "0.9"
+once_cell = "1"
 regex = "1"
-lazy_static = "1.4"
+reqwest = "0.9"
