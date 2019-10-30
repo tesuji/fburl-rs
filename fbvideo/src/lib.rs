@@ -115,7 +115,7 @@ static TITLE_RE: Lazy<Regex> = Lazy::new(|| Regex::new(TITLE_RX).unwrap());
 impl<'fb> FbVideo<'fb> {
     /// Generate new instance of FbVideo.
     pub fn new(url: &'fb str, quality: Quality) -> Self {
-        FbVideo {
+        Self {
             url,
             quality,
             content: String::new().into_boxed_str(),
@@ -125,13 +125,13 @@ impl<'fb> FbVideo<'fb> {
     /// Get real video URL (often `mp4` format) from Facebook URL.
     pub fn get_video_url(&mut self) -> Result<&str, Error> {
         self.crawl_page_source()?;
-        FbVideo::grep_video_url(&self.content, self.quality).ok_or(Error::InvalidUrl)
+        Self::grep_video_url(&self.content, self.quality).ok_or(Error::InvalidUrl)
     }
 
     /// Get video title from Facebook URL.
     pub fn get_video_title(&mut self) -> Result<&str, Error> {
         self.crawl_page_source()?;
-        FbVideo::grep_video_title(&self.content).ok_or(Error::InvalidUrl)
+        Self::grep_video_title(&self.content).ok_or(Error::InvalidUrl)
     }
 
     fn grep_video_url(content: &str, quality: Quality) -> Option<&str> {
@@ -157,7 +157,7 @@ impl<'fb> FbVideo<'fb> {
 
     fn crawl_page_source(&mut self) -> Result<(), Error> {
         if self.content.is_empty() {
-            self.content = FbVideo::make_request(&self.url)
+            self.content = Self::make_request(&self.url)
                 .map_err(Error::from)?
                 .into_boxed_str();
         }
