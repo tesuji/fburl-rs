@@ -123,34 +123,13 @@ impl<'fb> FbVideo<'fb> {
     /// Get real video URL (often `mp4` format) from Facebook URL.
     pub fn get_video_url(&mut self) -> Result<&str, Error> {
         self.crawl_page_source()?;
-        Self::grep_video_url(&self.content, self.quality).ok_or(Error::InvalidUrl)
+        grep_video_url(&self.content, self.quality).ok_or(Error::InvalidUrl)
     }
 
     /// Get video title from Facebook URL.
     pub fn get_video_title(&mut self) -> Result<&str, Error> {
         self.crawl_page_source()?;
-        Self::grep_video_title(&self.content).ok_or(Error::InvalidUrl)
-    }
-
-    fn grep_video_url(content: &str, quality: Quality) -> Option<&str> {
-        if let Some(caps) = match quality {
-            Quality::Sd => &*URL_SD_RE,
-            Quality::Hd => &*URL_HD_RE,
-        }
-        .captures(content)
-        {
-            Some(caps.get(2).unwrap().as_str())
-        } else {
-            None
-        }
-    }
-
-    fn grep_video_title(content: &str) -> Option<&str> {
-        if let Some(caps) = TITLE_RE.captures(content) {
-            Some(caps.get(1).unwrap().as_str())
-        } else {
-            None
-        }
+        grep_video_title(&self.content).ok_or(Error::InvalidUrl)
     }
 
     fn crawl_page_source(&mut self) -> Result<(), Error> {
@@ -180,5 +159,26 @@ impl<'fb> FbVideo<'fb> {
             .get(url)
             .send()?
             .text()
+    }
+}
+
+fn grep_video_url(content: &str, quality: Quality) -> Option<&str> {
+    if let Some(caps) = match quality {
+        Quality::Sd => &*URL_SD_RE,
+        Quality::Hd => &*URL_HD_RE,
+    }
+    .captures(content)
+    {
+        Some(caps.get(2).unwrap().as_str())
+    } else {
+        None
+    }
+}
+
+fn grep_video_title(content: &str) -> Option<&str> {
+    if let Some(caps) = TITLE_RE.captures(content) {
+        Some(caps.get(1).unwrap().as_str())
+    } else {
+        None
     }
 }
