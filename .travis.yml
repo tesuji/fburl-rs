@@ -1,5 +1,5 @@
 dist: xenial
-language: minimal
+language: shell
 
 cache:
   directories:
@@ -19,7 +19,7 @@ before_install:
   - cargo fmt --all -- --check
 
 install:
-  - sudo apt-get install -q libssl-dev
+  - sudo apt-get update -qq && sudo apt-get install -q libssl-dev
 
 script:
-  - cargo check --verbose --all --all-targets
+  - cargo check --all --all-targets
