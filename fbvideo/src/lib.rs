@@ -11,18 +11,20 @@
 //!
 //! ```rust,no_run
 //! use fbvideo::{FbVideo, Quality};
-//!
-//! let mut fb = FbVideo::new(
-//!     "https://www.facebook.com/817131355292571/videos/2101344733268123/",
-//!     Quality::Hd,
-//! );
-//! match fb.get_video_url() {
-//!     Ok(url) => println!("{:?}", url),
-//!     Err(e) => panic!("{:?}", e),
+//! async fn foo() {
+//!     let mut fb = FbVideo::new(
+//!         "https://www.facebook.com/817131355292571/videos/2101344733268123/",
+//!         Quality::Hd,
+//!     );
+//!     match fb.get_video_url().await {
+//!         Ok(url) => println!("{:?}", url),
+//!         Err(e) => panic!("{:?}", e),
+//!     }
 //! }
 //! ```
 
 #![deny(rust_2018_idioms)]
+#[doc(html_root_url = "https://docs.rs/fbvideo/0.4.0")]
 use std::fmt;
 
 use once_cell::sync::Lazy;
@@ -52,32 +54,23 @@ pub enum Quality {
 /// Represent all possible errors encounter in this library.
 #[derive(Debug)]
 pub enum Error {
-    /// Error is related to HTTP.
-    HttpError,
     /// Error is from a `RedirectPolicy`.
-    RedirectError,
-    /// Error is from a request returning a 4xx error.
-    ClientError,
-    /// Error is from a request returning a 5xx error.
-    ServerError,
+    Redirect,
     /// Error is related to a timeout.
-    TimeoutError,
+    Timeout,
     /// Target site has no video link.
     InvalidUrl,
     /// Error is unknown.
-    UnknownError,
+    Unknown,
 }
 
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let description = match self {
-            Error::HttpError => "Error is related to HTTP",
-            Error::RedirectError => "Error is from a `RedirectPolicy`",
-            Error::ClientError => "Error is from a request returning a 4xx error",
-            Error::ServerError => "Error is from a request returning a 5xx error",
-            Error::TimeoutError => "Error is related to a timeout",
+            Error::Redirect => "Error is from a `RedirectPolicy`",
+            Error::Timeout => "Error is related to a timeout",
             Error::InvalidUrl => "Target site has no video link",
-            Error::UnknownError => "Error is unknown",
+            Error::Unknown => "Error is unknown",
         };
         f.write_str(description)
     }
@@ -85,20 +78,14 @@ impl fmt::Display for Error {
 
 impl From<reqwest::Error> for Error {
     fn from(e: reqwest::Error) -> Self {
-        if e.is_http() {
-            Error::HttpError
-        } else if e.is_timeout() {
-            Error::TimeoutError
+        if e.is_timeout() {
+            Error::Timeout
         } else if e.is_redirect() {
-            Error::RedirectError
-        } else if e.is_client_error() {
-            Error::ClientError
-        } else if e.is_server_error() {
-            Error::ServerError
+            Error::Redirect
         } else if e.url().is_none() {
             Error::InvalidUrl
         } else {
-            Error::UnknownError
+            Error::Unknown
         }
     }
 }
@@ -124,27 +111,28 @@ impl<'fb> FbVideo<'fb> {
     }
 
     /// Get real video URL (often `mp4` format) from Facebook URL.
-    pub fn get_video_url(&mut self) -> Result<&str, Error> {
-        self.crawl_page_source()?;
+    pub async fn get_video_url(&mut self) -> Result<&str, Error> {
+        self.crawl_page_source().await?;
         grep_video_url(&self.content, self.quality).ok_or(Error::InvalidUrl)
     }
 
     /// Get video title from Facebook URL.
-    pub fn get_video_title(&mut self) -> Result<&str, Error> {
-        self.crawl_page_source()?;
+    pub async fn get_video_title(&mut self) -> Result<&str, Error> {
+        self.crawl_page_source().await?;
         grep_video_title(&self.content).ok_or(Error::InvalidUrl)
     }
 
-    fn crawl_page_source(&mut self) -> Result<(), Error> {
+    async fn crawl_page_source(&mut self) -> Result<(), Error> {
         if self.content.is_empty() {
             self.content = Self::make_request(&self.url)
+                .await
                 .map_err(Error::from)?
                 .into_boxed_str();
         }
         Ok(())
     }
 
-    fn make_request(url: &str) -> Result<String, reqwest::Error> {
+    async fn make_request(url: &str) -> Result<String, reqwest::Error> {
         let mut headers = reqwest::header::HeaderMap::new();
 
         // Disguise as IE 9 on Windows 7.
@@ -160,8 +148,10 @@ impl<'fb> FbVideo<'fb> {
             .default_headers(headers)
             .build()?
             .get(url)
-            .send()?
+            .send()
+            .await?
             .text()
+            .await
     }
 }
 

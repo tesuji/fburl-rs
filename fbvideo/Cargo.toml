@@ -1,6 +1,6 @@
 [package]
 name = "fbvideo"
-version = "0.3.2"
+version = "0.4.0" # remember to update html_root_url
 authors = ["Lzu Tao <taolzu@gmail.com>"]
 categories = ["network-programming", "parsing", "web-programming"]
 edition = "2018"
@@ -9,14 +9,22 @@ license = "MIT"
 repository = "https://github.com/lzutao/fburl-rs/tree/master/fbvideo"
 description = "Library to get video URLs from Facebook"
 
+# More info at https://doc.rust-lang.org/cargo/reference/manifest.html
+
 [badges]
 travis-ci = { repository = "lzutao/fbvideo-rs", branch = "master" }
 
 [dependencies]
 once_cell = "1"
-reqwest = "0.9"
 
 [dependencies.regex]
 version = "1"
 default-features = false
 features = ["std", "perf"]
+
+[dependencies.reqwest]
+version = "0.10.0-alpha.2"
+default-features = false
+features = ["default-tls", "gzip"]
+git = "https://github.com/seanmonstar/reqwest"
+rev = "5d639ecbde270bb44c4703c168cfce4729d9e2b3"

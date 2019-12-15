@@ -1,7 +1,11 @@
 #![deny(rust_2018_idioms)]
 
+use std::collections::HashSet;
+
 use clap::{App, Arg, ArgMatches};
 use fbvideo::{FbVideo, Quality};
+use futures::stream::{FuturesUnordered, StreamExt};
+use tokio::runtime::Runtime;
 
 fn main() {
     run();
@@ -44,11 +48,18 @@ fn run() {
 
     // We can also get the values for those arguments
     if let Some(urls) = matches.values_of("URL") {
-        for url in urls {
-            match FbVideo::new(url, quality).get_video_url() {
-                Ok(url) => println!("{}", url),
-                Err(e) => eprintln!("Error: {}", e),
-            }
-        }
+        let urls: HashSet<_> = urls.collect();
+        let mut videos: Vec<_> = urls.into_iter().map(|url| FbVideo::new(url, quality)).collect();
+        Runtime::new().unwrap().block_on(async {
+            let tasks: FuturesUnordered<_> = videos.iter_mut().map(|v| v.get_video_url()).collect();
+            let fut = tasks.for_each(|f| {
+                match f {
+                    Ok(url) => println!("{}", url),
+                    Err(e) => eprintln!("Error: {}", e),
+                };
+                futures::future::ready(())
+            });
+            fut.await
+        });
     }
 }
