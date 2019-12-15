@@ -23,6 +23,7 @@
 //! ```
 
 #![deny(rust_2018_idioms)]
+use std::fmt;
 
 use once_cell::sync::Lazy;
 use regex::Regex;
@@ -67,8 +68,8 @@ pub enum Error {
     UnknownError,
 }
 
-impl std::fmt::Display for Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let description = match self {
             Error::HttpError => "Error is related to HTTP",
             Error::RedirectError => "Error is from a `RedirectPolicy`",
@@ -102,13 +103,15 @@ impl From<reqwest::Error> for Error {
     }
 }
 
-const SD_RX: &str = r#"sd_src(_no_ratelimit)?:\s*"([^"]+)""#;
-const HD_RX: &str = r#"hd_src(_no_ratelimit)?:\s*"([^"]+)""#;
-const TITLE_RX: &str = r#"title id="pageTitle">([^<]+)</title>"#;
+macro_rules! global_regex {
+    ($NAME:ident, $re:literal) => {
+        static $NAME: Lazy<Regex> = Lazy::new(|| Regex::new($re).unwrap());
+    };
+}
 
-static URL_SD_RE: Lazy<Regex> = Lazy::new(|| Regex::new(SD_RX).unwrap());
-static URL_HD_RE: Lazy<Regex> = Lazy::new(|| Regex::new(HD_RX).unwrap());
-static TITLE_RE: Lazy<Regex> = Lazy::new(|| Regex::new(TITLE_RX).unwrap());
+global_regex!(URL_SD_RE, r#"sd_src(_no_ratelimit)?:\s*"([^"]+)""#);
+global_regex!(URL_HD_RE, r#"hd_src(_no_ratelimit)?:\s*"([^"]+)""#);
+global_regex!(TITLE_RE, r#"title id="pageTitle">([^<]+)</title>"#);
 
 impl<'fb> FbVideo<'fb> {
     /// Generate new instance of FbVideo.
@@ -163,22 +166,18 @@ impl<'fb> FbVideo<'fb> {
 }
 
 fn grep_video_url(content: &str, quality: Quality) -> Option<&str> {
-    if let Some(caps) = match quality {
-        Quality::Sd => &*URL_SD_RE,
-        Quality::Hd => &*URL_HD_RE,
-    }
-    .captures(content)
-    {
-        Some(caps.get(2).unwrap().as_str())
-    } else {
-        None
-    }
+    let regex = match quality {
+        Quality::Sd => &URL_SD_RE,
+        Quality::Hd => &URL_HD_RE,
+    };
+
+    regex
+        .captures(content)
+        .and_then(|captures| captures.get(2).map(|m| m.as_str()))
 }
 
 fn grep_video_title(content: &str) -> Option<&str> {
-    if let Some(caps) = TITLE_RE.captures(content) {
-        Some(caps.get(1).unwrap().as_str())
-    } else {
-        None
-    }
+    TITLE_RE
+        .captures(content)
+        .and_then(|captures| captures.get(1).map(|m| m.as_str()))
 }
