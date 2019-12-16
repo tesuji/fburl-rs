@@ -29,6 +29,7 @@ use std::fmt;
 
 use once_cell::sync::Lazy;
 use regex::Regex;
+use reqwest::Client;
 
 /// This struct contains all methods necessary to get video URL or video title
 /// from Facebook.
@@ -96,9 +97,20 @@ macro_rules! global_regex {
     };
 }
 
-global_regex!(URL_SD_RE, r#"sd_src(_no_ratelimit)?:\s*"([^"]+)""#);
-global_regex!(URL_HD_RE, r#"hd_src(_no_ratelimit)?:\s*"([^"]+)""#);
+global_regex!(URL_SD_RE, r#"sd_src(_no_ratelimit)?:[ \t\n\r\f]*"([^"]+)""#);
+global_regex!(URL_HD_RE, r#"hd_src(_no_ratelimit)?:[ \t\n\r\f]*"([^"]+)""#);
 global_regex!(TITLE_RE, r#"title id="pageTitle">([^<]+)</title>"#);
+
+static GZIP_CLIENT: Lazy<Client> = Lazy::new(|| {
+    use reqwest::header::{HeaderMap, HeaderValue, USER_AGENT};
+    let mut headers = HeaderMap::new();
+    // Disguise as IE 9 on Windows 7.
+    headers.insert(
+        USER_AGENT,
+        HeaderValue::from_static("Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)"),
+    );
+    Client::builder().gzip(true).default_headers(headers).build().unwrap()
+});
 
 impl<'fb> FbVideo<'fb> {
     /// Generate new instance of FbVideo.
@@ -124,36 +136,14 @@ impl<'fb> FbVideo<'fb> {
 
     async fn crawl_page_source(&mut self) -> Result<(), Error> {
         if self.content.is_empty() {
-            self.content = make_request(&self.url)
-                .await
-                .map_err(Error::from)?
-                .into_boxed_str();
+            self.content = make_request(&self.url).await.map_err(Error::from)?.into_boxed_str();
         }
         Ok(())
     }
-
 }
 
 async fn make_request(url: &str) -> Result<String, reqwest::Error> {
-    let mut headers = reqwest::header::HeaderMap::new();
-
-    // Disguise as IE 9 on Windows 7.
-    headers.insert(
-        reqwest::header::USER_AGENT,
-        reqwest::header::HeaderValue::from_static(
-            "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)",
-        ),
-    );
-
-    reqwest::Client::builder()
-        .gzip(true)
-        .default_headers(headers)
-        .build()?
-        .get(url)
-        .send()
-        .await?
-        .text()
-        .await
+    GZIP_CLIENT.get(url).send().await?.text().await
 }
 
 fn grep_video_url(content: &str, quality: Quality) -> Option<&str> {
