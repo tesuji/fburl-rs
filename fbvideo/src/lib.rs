@@ -124,7 +124,7 @@ impl<'fb> FbVideo<'fb> {
 
     async fn crawl_page_source(&mut self) -> Result<(), Error> {
         if self.content.is_empty() {
-            self.content = Self::make_request(&self.url)
+            self.content = make_request(&self.url)
                 .await
                 .map_err(Error::from)?
                 .into_boxed_str();
@@ -132,27 +132,28 @@ impl<'fb> FbVideo<'fb> {
         Ok(())
     }
 
-    async fn make_request(url: &str) -> Result<String, reqwest::Error> {
-        let mut headers = reqwest::header::HeaderMap::new();
+}
 
-        // Disguise as IE 9 on Windows 7.
-        headers.insert(
-            reqwest::header::USER_AGENT,
-            reqwest::header::HeaderValue::from_static(
-                "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)",
-            ),
-        );
+async fn make_request(url: &str) -> Result<String, reqwest::Error> {
+    let mut headers = reqwest::header::HeaderMap::new();
 
-        reqwest::Client::builder()
-            .gzip(true)
-            .default_headers(headers)
-            .build()?
-            .get(url)
-            .send()
-            .await?
-            .text()
-            .await
-    }
+    // Disguise as IE 9 on Windows 7.
+    headers.insert(
+        reqwest::header::USER_AGENT,
+        reqwest::header::HeaderValue::from_static(
+            "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)",
+        ),
+    );
+
+    reqwest::Client::builder()
+        .gzip(true)
+        .default_headers(headers)
+        .build()?
+        .get(url)
+        .send()
+        .await?
+        .text()
+        .await
 }
 
 fn grep_video_url(content: &str, quality: Quality) -> Option<&str> {
