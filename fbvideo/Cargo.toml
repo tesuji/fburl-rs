@@ -23,8 +23,6 @@ default-features = false
 features = ["std", "perf"]
 
 [dependencies.reqwest]
-version = "0.10.0-alpha.2"
+version = "0.10.0"
 default-features = false
 features = ["default-tls", "gzip"]
-git = "https://github.com/seanmonstar/reqwest"
-rev = "5d639ecbde270bb44c4703c168cfce4729d9e2b3"
