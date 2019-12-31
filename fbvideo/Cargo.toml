@@ -7,7 +7,7 @@ edition = "2018"
 keywords = ["facebook", "video", "request", "client"]
 license = "MIT"
 repository = "https://github.com/lzutao/fburl-rs/tree/master/fbvideo"
-description = "Library to get video URLs from Facebook"
+description = "Async crate to get video URLs from Facebook"
 
 # More info at https://doc.rust-lang.org/cargo/reference/manifest.html
 

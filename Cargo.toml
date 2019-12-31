@@ -7,7 +7,7 @@ edition = "2018"
 keywords = ["facebook", "video", "request", "client"]
 license = "MIT"
 repository = "https://github.com/lzutao/fburl-rs"
-description = "Get video URLs from Facebook"
+description = "CLI to get video URLs from Facebook"
 
 [badges]
 travis-ci = { repository = "lzutao/fbvideo-rs", branch = "master" }
@@ -22,7 +22,7 @@ members = [
 ]
 
 [dependencies]
-fbvideo = { version = "0.4", path = "fbvideo" }
+fbvideo = { version = "0.4.0", path = "fbvideo" }
 
 [dependencies.clap]
 version = "2.32"
