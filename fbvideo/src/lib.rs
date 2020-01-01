@@ -23,8 +23,8 @@
 //! }
 //! ```
 
-#![deny(rust_2018_idioms)]
-#[doc(html_root_url = "https://docs.rs/fbvideo/0.4.0")]
+#![warn(rust_2018_idioms)]
+#![doc(html_root_url = "https://docs.rs/fbvideo/0.4.0")]
 use std::fmt;
 
 use once_cell::sync::Lazy;
