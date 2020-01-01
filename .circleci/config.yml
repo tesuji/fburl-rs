@@ -27,8 +27,5 @@ jobs:
             - target/debug/deps
           key: v4-cargo-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
       - run:
-          name: Fetch all dependencies
-          command: cargo fetch
-      - run:
           name: Run all tests
           command: cargo test --all
