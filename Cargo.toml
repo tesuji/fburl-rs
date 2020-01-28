@@ -34,7 +34,7 @@ default-features = false
 features = ["std"]
 
 [dependencies.tokio]
-version = "0.2.10"
+version = "0.2.11"
 default-features = false
 features = ["tcp"]
 
