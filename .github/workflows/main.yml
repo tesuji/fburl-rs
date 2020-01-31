@@ -14,15 +14,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+    - name: Rustup
+      run: |
+        rustup component remove rust-docs
+        rustup update stable
     - name: Version info
       run: |
         rustc -Vv
         cargo -V
         rustup -V
-    - name: Rustup
-      run: |
-        rustup component remove rust-docs
-        rustup update stable
     - uses: actions/checkout@v2
     - name: Cache CARGO_HOME
       uses: actions/cache@v1
