@@ -26,6 +26,8 @@ jobs:
         cargo -V
         rustup -V
     - uses: actions/checkout@v2
+    - name: Rustfmt
+      run: cargo fmt -- --check
     - name: Cache CARGO_HOME
       uses: actions/cache@v1
       with:
