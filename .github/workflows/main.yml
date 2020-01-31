@@ -1,0 +1,41 @@
+name: Rust
+
+on:
+  push:
+    branches:
+      - 'master'
+      - '!gh-pages'
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Version info
+      run: |
+        rustc -Vv
+        cargo -V
+        rustup -V
+    - name: Rustup
+      run: |
+        rustup component remove rust-docs
+        rustup update stable
+    - uses: actions/checkout@v2
+    - name: Cache CARGO_HOME
+      uses: actions/cache@v1
+      with:
+        path: ~/.cargo
+        key: ${{ runner.os }}-cargo-home-${{ hashFiles('Cargo.lock') }}
+        restore-keys: ${{ runner.os }}-cargo-home
+    - name: Cache CARGO_BUILD_TARGET_DIR
+      uses: actions/cache@v1
+      with:
+        path: target
+        key: ${{ runner.os }}-cargo-target-${{ hashFiles('Cargo.lock') }}
+        restore-keys: ${{ runner.os }}-cargo-target
+    - run: cargo check
+    - run: cargo check --all-targets --workspace
+    - name: Before cache
+      run: |
+        cargo install --debug cargo-cache
+        cargo cache --autoclean
