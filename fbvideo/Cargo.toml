@@ -26,3 +26,7 @@ features = ["std", "perf"]
 version = "0.10.0"
 default-features = false
 features = ["default-tls", "gzip"]
+
+# Reduce build time by setting proc-macro crates non optimized.
+[profile.release.build-override]
+opt-level = 0

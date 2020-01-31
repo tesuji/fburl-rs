@@ -41,3 +41,7 @@ features = ["tcp"]
 [profile.release]
 panic = "abort"
 lto = true
+
+# Reduce build time by setting proc-macro crates non optimized.
+[profile.release.build-override]
+opt-level = 0
