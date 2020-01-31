@@ -18,8 +18,9 @@ jobs:
     steps:
     - name: Rustup
       run: |
+        rustup override set stable
         rustup component remove rust-docs
-        rustup update stable
+        rustup update --no-self-update stable
     - name: Version info
       run: |
         rustc -Vv
