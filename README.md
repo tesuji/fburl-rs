@@ -2,7 +2,10 @@
 
 Get video URLs from Facebook.
 
-[![Build Status](https://travis-ci.com/lzutao/fburl-rs.svg?branch=master)](https://travis-ci.com/lzutao/fburl-rs)
+[![Build Status][actions-badge]][actions-url]
+
+[actions-badge]: https://github.com/lzutao/fburl-rs/workflows/Rust/badge.svg?branch=master&event=push
+[actions-url]: https://github.com/lzutao/fburl-rs/actions
 
 ### Usage
 
