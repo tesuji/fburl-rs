@@ -45,4 +45,5 @@ jobs:
     - name: Before cache
       run: |
         cargo install --debug cargo-cache
+        find "$HOME/.cargo/bin" ! -type d -exec strip {} \;
         cargo cache --autoclean
