@@ -23,6 +23,6 @@ default-features = false
 features = ["std", "perf"]
 
 [dependencies.reqwest]
-version = "0.10.0"
+version = "0.10.3"
 default-features = false
 features = ["default-tls", "gzip"]
