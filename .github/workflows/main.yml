@@ -16,35 +16,36 @@ jobs:
     env:
       CARGO_BUILD_TARGET: x86_64-unknown-linux-gnu
     steps:
-    - name: Rustup
-      run: |
-        rustup override set stable
-        rustup component remove rust-docs
-        rustup update --no-self-update stable
-    - name: Version info
-      run: |
-        rustc -Vv
-        cargo -V
-        rustup -V
-    - uses: actions/checkout@v2
-    - name: Rustfmt
-      run: cargo fmt -- --check
-    - name: Cache CARGO_HOME
-      uses: actions/cache@v1
-      with:
-        path: ~/.cargo
-        key: ${{ runner.os }}-cargo-home-${{ hashFiles('Cargo.lock') }}
-        restore-keys: ${{ runner.os }}-cargo-home
-    - name: Cache CARGO_BUILD_TARGET_DIR
-      uses: actions/cache@v1
-      with:
-        path: ${{ env.CARGO_BUILD_TARGET_DIR }}
-        key: ${{ runner.os }}-cargo-target-${{ hashFiles('Cargo.lock') }}
-        restore-keys: ${{ runner.os }}-cargo-target
-    - run: cargo build
-    - run: cargo build --all-targets --workspace
-    - name: Before cache
-      run: |
-        cargo install --debug cargo-cache
-        find "$HOME/.cargo/bin" ! -type d -exec strip {} \;
-        cargo cache --autoclean
+      - uses: actions/checkout@v2
+
+      - name: Rustup
+        run: rustup toolchain install stable -c rustfmt -c clippy
+      - name: Rust toolchain info
+        run: |
+          rustc -Vv
+          cargo -V
+          rustup -V
+
+      - name: Rustfmt
+        run: cargo fmt -- --check
+
+      - name: Cache CARGO_HOME
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Get rustc commit hash
+        id: cargo-target-cache
+        run: |
+          echo "::set-output name=rust_hash::$(rustc -Vv | grep commit-hash | awk '{print $2}')"
+      - name: Cache cargo build
+        uses: actions/cache@v2
+        with:
+          path: target
+          key: ${{ runner.os }}-cargo-target-dir-${{ steps.cargo-target-cache.outputs.rust_hash }}-${{ hashFiles('**/Cargo.lock') }}
+
+      - run: cargo check
+      - run: cargo check --all-targets --workspace
+      - run: cargo clippy -- -D warnings
