@@ -19,7 +19,11 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Rustup
-        run: rustup toolchain install stable -c rustfmt -c clippy
+        run: |
+          rustup toolchain install \
+            --no-self-update \
+            stable \
+            -c rustfmt -c clippy
       - name: Rust toolchain info
         run: |
           rustc -Vv
