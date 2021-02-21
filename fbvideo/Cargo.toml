@@ -12,7 +12,7 @@ description = "Async crate to get video URLs from Facebook"
 # More info at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [badges]
-travis-ci = { repository = "lzutao/fbvideo-rs", branch = "master" }
+maintenance = { status = "looking-for-maintainer" }
 
 [dependencies]
 once_cell = "1"

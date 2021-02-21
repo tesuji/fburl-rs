@@ -1,3 +1,10 @@
+# This crate doesn't work as expected
+
+Facebook has changed their content site and I haven't had time/interest to
+complete with new algorithm.
+
+I am always welcome anybody open pull requests to fix this problem.
+
 # fburl
 
 Get video URLs from Facebook.
